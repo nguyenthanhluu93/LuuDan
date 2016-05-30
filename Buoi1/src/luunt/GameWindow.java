@@ -12,19 +12,20 @@ import java.io.IOException;
  */
 public class GameWindow extends Frame implements Runnable {
     Image background;
-    Image flane1, flane2;
-    int planeX1 = 100;
-    int planeY1 = 100;
-    int planeX2 = 300;
-    int planeY2 = 500;
-    int speedX = 0;
-    int speedY = 0;
+
+    Plane player1;
+    Plane player2;
+    Plane player3;
     BufferedImage bufferedImage;
 
     public GameWindow() {
         this.setSize(480, 700);
         this.setTitle("1945");
         this.setVisible(true);
+        player1 = new Plane(100, 200);
+        player3 = player1;
+        player2 = new Plane();
+
         this.addWindowListener(new WindowListener() {
             @Override
             public void windowOpened(WindowEvent e) {
@@ -73,16 +74,19 @@ public class GameWindow extends Frame implements Runnable {
                 //phim duoc an va giu
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_W:
-                        speedY = -3;
+                        player1.speedY = -3;
                         break;
                     case KeyEvent.VK_A:
-                        speedX = -3;
+                        player1.speedX = -3;
                         break;
                     case KeyEvent.VK_S:
-                        speedY = 3;
+                        player1.speedY = 3;
                         break;
                     case KeyEvent.VK_D:
-                        speedX = 3;
+                        player1.speedX = 3;
+                        break;
+                    case KeyEvent.VK_SPACE:
+
                         break;
                 }
             }
@@ -90,8 +94,8 @@ public class GameWindow extends Frame implements Runnable {
             @Override
             public void keyReleased(KeyEvent e) {
                 //tha phim ra
-                speedX = 0;
-                speedY = 0;
+                player1.speedX = 0;
+                player1.speedY = 0;
             }
         });
         this.addMouseMotionListener(new MouseMotionListener() {
@@ -103,29 +107,37 @@ public class GameWindow extends Frame implements Runnable {
             @Override
             public void mouseMoved(MouseEvent e) {
                 System.out.println("moved at:" + e.getX() +" "+ e.getY());
-                planeX2 = e.getX();
-                planeY2 = e.getY();
+//                player2.positionX = e.getX();
+//                player2.positionY = e.getY();
+                player2.move(e.getX(), e.getY());
             }
         });
         try {
             background = ImageIO.read(new File("Resources/Background.png"));
-            flane1 = ImageIO.read(new File("Resources/PLANE1.png"));
-            flane2 = ImageIO.read(new File("Resources/PLANE2.png"));
+            player1.image = ImageIO.read(new File("Resources/PLANE1.png"));
+            player2.image = ImageIO.read(new File("Resources/PLANE2.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
         repaint();
     }
 
+    public void gameUpdate() {
+        player1.update();
+        player2.update();
+    }
+
     @Override
-    public void update(Graphics g) {
+    public void update(Graphics g) { //de ve (draw)
         if (bufferedImage == null) {
             bufferedImage = new BufferedImage(480, 700, 1);
         }
         Graphics bufferedGraphics = bufferedImage.getGraphics();
         bufferedGraphics.drawImage(background, 0, 0, null);
-        bufferedGraphics.drawImage(flane1, planeX1, planeY1, null);
-        bufferedGraphics.drawImage(flane2, planeX2, planeY2, null);
+        player1.draw(bufferedGraphics);
+        player2.draw(bufferedGraphics);
+//        bufferedGraphics.drawImage(player1.image, player1.positionX, player1.positionY, null);
+//        bufferedGraphics.drawImage(player2.image, player2.positionX, player2.positionY, null);
 
         g.drawImage(bufferedImage, 0, 0, null);
     }
@@ -135,8 +147,9 @@ public class GameWindow extends Frame implements Runnable {
         long i =0;
         while (true){
             try {
-                planeX1 += speedX;
-                planeY1 += speedY;
+//                player1.positionX += player1.speedX;
+//                player1.positionY += player1.speedY;
+                gameUpdate();
                 Thread.sleep(17);
                 repaint();
             } catch (InterruptedException e) {
