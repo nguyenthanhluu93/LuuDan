@@ -18,37 +18,28 @@ public class Plane {
     public int speedX;
     public int speedY;
 
-    public Plane() {
-        this.positionX = 200;
-        this.positionY = 300;
-        try {
-            this.image = ImageIO.read(new File("Resources/PLANE1"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
-    public Plane(int positionX, int positionY) {
+    public Plane(int positionX, int positionY, String image) {
         this.positionX = positionX;
         this.positionY = positionY;
         try {
-            this.image = ImageIO.read(new File("Resources/PLANE1"));
+            this.image = ImageIO.read(new File(image));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void move(int x, int y) {
-        positionX = x;
-        positionY = y;
+        this.positionX = x;
+        this.positionY = y;
     }
 
     public void update() {
-        positionX += speedX;
-        positionY += speedY;
+        this.positionX += this.speedX;
+        this.positionY += this.speedY;
     }
 
     public void draw(Graphics g) {
-        g.drawImage(image, positionX, positionY, null);
+        g.drawImage(this.image, this.positionX, this.positionY, null);
     }
 }

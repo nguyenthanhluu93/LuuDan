@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Created by Chihirohaku on 5/28/2016.
@@ -15,16 +16,15 @@ public class GameWindow extends Frame implements Runnable {
 
     Plane player1;
     Plane player2;
-    Plane player3;
+    ArrayList<Bullet> listDan = new ArrayList<>();
     BufferedImage bufferedImage;
 
     public GameWindow() {
         this.setSize(480, 700);
         this.setTitle("1945");
         this.setVisible(true);
-        player1 = new Plane(100, 200);
-        player3 = player1;
-        player2 = new Plane();
+        player1 = new Plane(100, 500, "Resources/PLANE2.png");
+        player2 = new Plane(300, 500, "Resources/PLANE4.png");
 
         this.addWindowListener(new WindowListener() {
             @Override
@@ -74,19 +74,35 @@ public class GameWindow extends Frame implements Runnable {
                 //phim duoc an va giu
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_W:
-                        player1.speedY = -3;
+                        if (player1.positionY <= 0) {
+                            player1.speedY = 0;
+                        } else {
+                            player1.speedY = -3;
+                        }
                         break;
                     case KeyEvent.VK_A:
-                        player1.speedX = -3;
+                        if (player1.positionX <= 0) {
+                            player1.speedX = 0;
+                        } else {
+                            player1.speedX = -3;
+                        }
                         break;
                     case KeyEvent.VK_S:
-                        player1.speedY = 3;
+                        if (player1.positionY >= 630) {
+                            player1.speedY = 0;
+                        } else {
+                            player1.speedY = 3;
+                        }
                         break;
                     case KeyEvent.VK_D:
-                        player1.speedX = 3;
+                        if (player1.positionX >= 400) {
+                            player1.speedX = 0;
+                        } else {
+                            player1.speedX = 3;
+                        }
                         break;
                     case KeyEvent.VK_SPACE:
-
+                        banPlane1();
                         break;
                 }
             }
@@ -107,24 +123,69 @@ public class GameWindow extends Frame implements Runnable {
             @Override
             public void mouseMoved(MouseEvent e) {
                 System.out.println("moved at:" + e.getX() +" "+ e.getY());
-//                player2.positionX = e.getX();
-//                player2.positionY = e.getY();
                 player2.move(e.getX(), e.getY());
             }
         });
+        this.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                banPlane2();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
+
         try {
             background = ImageIO.read(new File("Resources/Background.png"));
-            player1.image = ImageIO.read(new File("Resources/PLANE1.png"));
-            player2.image = ImageIO.read(new File("Resources/PLANE2.png"));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
         repaint();
     }
 
+    public void banPlane1() {
+        Bullet bullet = new Bullet();
+        bullet.posDX = player1.positionX + 30;
+        bullet.posDY = player1.positionY;
+        listDan.add(bullet);
+    }
+
+    public void banPlane2() {
+        Bullet bullet = new Bullet();
+        bullet.posDX = player2.positionX + 37;
+        bullet.posDY = player2.positionY;
+        listDan.add(bullet);
+        Bullet bullet1 = new Bullet();
+        bullet1.posDX = player2.positionX + 23;
+        bullet1.posDY = player2.positionY;
+        listDan.add(bullet1);
+    }
+
     public void gameUpdate() {
         player1.update();
         player2.update();
+        for (int i=0; i< listDan.size(); i++) {
+            listDan.get(i).posDY -= 10;
+        }
     }
 
     @Override
@@ -136,8 +197,10 @@ public class GameWindow extends Frame implements Runnable {
         bufferedGraphics.drawImage(background, 0, 0, null);
         player1.draw(bufferedGraphics);
         player2.draw(bufferedGraphics);
-//        bufferedGraphics.drawImage(player1.image, player1.positionX, player1.positionY, null);
-//        bufferedGraphics.drawImage(player2.image, player2.positionX, player2.positionY, null);
+        for (int i = 0; i< listDan.size(); i++) {
+            listDan.get(i).draw(bufferedGraphics);
+        }
+
 
         g.drawImage(bufferedImage, 0, 0, null);
     }
@@ -147,8 +210,6 @@ public class GameWindow extends Frame implements Runnable {
         long i =0;
         while (true){
             try {
-//                player1.positionX += player1.speedX;
-//                player1.positionY += player1.speedY;
                 gameUpdate();
                 Thread.sleep(17);
                 repaint();
